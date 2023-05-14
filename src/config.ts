@@ -5,14 +5,16 @@ dotenv.config();
 
 interface IEnchantedScrollConfig {
     httpPort: number;
-    htmlFilePath: string;
+    htmlFilePath?: string;
+    htmlString?: string;
     fileName: string;
     pdfOptions: PDFOptions;
 }
 
 const config: IEnchantedScrollConfig = {
     httpPort: Number(process.env.HTTP_PORT || "3000"),
-    htmlFilePath: process.env.HTML_FILE_PATH || "./.tmp/test.html",
+    htmlFilePath: process.env.HTML_FILE_PATH || undefined,
+    htmlString: process.env.HTML_STRING || undefined,
     fileName: process.env.FILE_NAME || "generated-file",
     pdfOptions: {
         format: 'A4',
@@ -26,10 +28,6 @@ const config: IEnchantedScrollConfig = {
         omitBackground: true,
     }
 };
-
-if(!config.htmlFilePath) {
-    throw new Error("HTML_FILE_PATH is required.");
-}
 
 export default config;
 

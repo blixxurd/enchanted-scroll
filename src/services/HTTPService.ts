@@ -3,24 +3,40 @@ import path from 'path';
 import fs from 'fs';
 import logger from "../lib/Logger";
 
+interface IHTTPServiceConfig {
+    htmlFilePath?: string;
+    htmlString?: string;
+}
+    
 
 export default class HTTPService {
     public app: koa;
-    public filePath: string;
-    public port: number;
+    public port = 0;
+    public filePath: string|undefined;
+    public htmlString: string|undefined;
     
     /**
      * A small HTTP server that serves a single HTML file.
      * @param htmlFilePath The path to the HTML file to serve.
      */
-    constructor (htmlFilePath: string) {
-        this.port = 0; // Default to 0 so we can check if the server is running
+    constructor (params: IHTTPServiceConfig) {
+
+        const { htmlFilePath, htmlString } = params;
+        logger.info("HTTP_SERVICE_INIT", { htmlFilePath, htmlString });
+
+        if(!htmlFilePath && !htmlString) {
+            throw new Error("Either htmlFilePath or htmlString is required.");
+        }
+        if(htmlFilePath && htmlString) {
+            throw new Error("Only one of htmlFilePath or htmlString is allowed.");
+        }
+        if(htmlFilePath) {
+            this.filePath = path.join(htmlFilePath);
+        } else {
+            this.htmlString = htmlString;
+        }
+
         this.app = new koa();
-        this.filePath = path.join(htmlFilePath);
-        this.app.use(async (ctx: Context) => {
-            ctx.type = 'html';
-            ctx.body = fs.createReadStream(this.filePath);
-        });
     }
 
     /**
@@ -32,14 +48,17 @@ export default class HTTPService {
         // Since this is not a long running service, it's okay to fail at runtime.
         // In fact, for our use case, it's better to fail on runtime than to fail on request.
         this.port = port;
-        if(!fs.existsSync(this.filePath)) {
-            logger.warn("HTTP_FILE_NOT_FOUND", { path: this.filePath });
-            throw new Error(`File ${this.filePath} does not exist.`);
+        let body = this.htmlString;
+        if(this.filePath) {
+            if(!fs.existsSync(this.filePath)) {
+                logger.warn("HTTP_FILE_NOT_FOUND", { path: this.filePath });
+                throw new Error(`File ${this.filePath} does not exist.`);
+            }
+            body = fs.readFileSync(this.filePath, 'utf8');
         }
         
         this.app.use(async (ctx: Context) => {
-            const html = fs.readFileSync(this.filePath, 'utf8');
-            ctx.body = html;
+            ctx.body = body;
             ctx.type = 'html';
         });
           
@@ -49,3 +68,5 @@ export default class HTTPService {
         });
     }
 }
+
+export { IHTTPServiceConfig };

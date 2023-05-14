@@ -4,12 +4,20 @@ import logger from "./lib/Logger";
 
 // Import Required Services
 import HTTPService from "./services/HTTPService";
-const httpService = new HTTPService(config.htmlFilePath);
-import PDFGeneratorService, { IFile as IEnchantedScrollFile } from "./services/PDFGeneratorService";
-const pdfGenerator = new PDFGeneratorService();
+import PDFGeneratorService, { IFile } from "./services/PDFGeneratorService";
 
-async function main(cfg: IEnchantedScrollConfig = config): Promise<IEnchantedScrollFile> {
+async function main(cfg: IEnchantedScrollConfig = config): Promise<IFile> {
+    // Initialize the backing services.
+    const httpService = new HTTPService({ 
+        htmlFilePath: cfg.htmlFilePath,
+        htmlString: cfg.htmlString
+    });
+    const pdfGenerator = new PDFGeneratorService();
+
+    // Start the HTTP service
     await httpService.start(cfg.httpPort);
+
+    // Generate the PDF from the HTTP service
     const file = await pdfGenerator.generatePDF({
         url: `http://localhost:${cfg.httpPort}`,
         filename: cfg.fileName,
@@ -20,6 +28,8 @@ async function main(cfg: IEnchantedScrollConfig = config): Promise<IEnchantedScr
 }
 
 export default main;
-export { IEnchantedScrollConfig, IEnchantedScrollFile }
+export { IEnchantedScrollConfig, IFile as IEnchantedScrollFile }
+
+main();
 
 
