@@ -18,18 +18,7 @@ async function main(cfg: IEnchantedScrollConfig = config) {
     logger.info("PDF_GENERATED", file);
 }
 
-// export default main;
-// export { IEnchantedScrollConfig, IFile as IEnchantedScrollFile }
-
-
-// Execute the program
-(async () => {
-    await main();
-    process.exit(0);
-})().catch(err => {
-    console.error(err);
-    // Exit the process with an error code
-    process.exit(1);
-})
+export default main;
+export { IEnchantedScrollConfig, IFile as IEnchantedScrollFile }
 
 
