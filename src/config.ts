@@ -3,19 +3,14 @@ import * as dotenv from "dotenv";
 import { PDFOptions} from 'puppeteer';
 dotenv.config();
 
-interface IEnchantedScrollConfig {
-    httpPort: number;
-    htmlFilePath?: string;
-    htmlString?: string;
-    fileName: string;
-    pdfOptions: PDFOptions;
+interface IAppConfig {
+    httpPort?: number;
+    pdfOptions?: PDFOptions;
+    outputDirectory?: string;
 }
 
-const config: IEnchantedScrollConfig = {
+const appConfig: IAppConfig = {
     httpPort: Number(process.env.HTTP_PORT || "3000"),
-    htmlFilePath: process.env.HTML_FILE_PATH || undefined,
-    htmlString: process.env.HTML_STRING || undefined,
-    fileName: process.env.FILE_NAME || "generated-file",
     pdfOptions: {
         format: 'A4',
         margin: {
@@ -26,9 +21,8 @@ const config: IEnchantedScrollConfig = {
         },
         printBackground: false,
         omitBackground: true,
-    }
+    },
 };
 
-export default config;
-
-export { IEnchantedScrollConfig };
+export default appConfig;
+export { IAppConfig as IEnchantedScrollConfig };

@@ -16,10 +16,13 @@ interface IFile extends IFileIdentity {
     created_at: Date;
 }
 
-interface IGeneratePDFRequest {
+interface IGeneratePDFBufferRequest {
     url: string;
-    filename: string;
     options: PDFOptions;
+}
+
+interface IGeneratePDFFileRequest extends IGeneratePDFBufferRequest {
+    filename: string;
 }
 
 export default class PDFGeneratorService {
@@ -55,7 +58,7 @@ export default class PDFGeneratorService {
     /**
      * Generate a PDF from a URL, and save it to the disk. Accepts a filename and PDF formatting options.
      */
-    public async generatePDF(req: IGeneratePDFRequest): Promise<IFile> {
+    public async generatePDFFile(req: IGeneratePDFFileRequest): Promise<IFile> {
         const { url, filename, options } = req;
 
         logger.info("PDF_GENERATOR_START", { url, filename });
@@ -72,7 +75,19 @@ export default class PDFGeneratorService {
             created_at: new Date()
         };
     }
+
+    /**
+     * Generate a PDF from a URL, and return it as a buffer. Accepts a filename and PDF formatting options.
+     */
+    public async generatePDFBuffer(req: IGeneratePDFBufferRequest): Promise<Buffer> {
+        const { url, options } = req;
+
+        logger.info("PDF_GENERATOR_START", { url });
+
+        const pdf = await this.puppeteer.generatePDF(url, options);
+        return pdf;
+    }
     
 }
 
-export { IFile, IFileIdentity, IGeneratePDFRequest };
+export { IFile, IFileIdentity, IGeneratePDFFileRequest, IGeneratePDFBufferRequest };
