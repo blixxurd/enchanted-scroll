@@ -1,16 +1,11 @@
 // Initialize configuration and local logger
-import ESConfig, { IEnchantedScrollConfig } from "./config";
+import ESBaseConfig, { IAppConfig } from "./config";
 import ESLogger, { Logger } from "./lib/Logger";
 
 // Import Required Services
 import HTTPService from "./services/HTTPService";
 import PDFGeneratorService, { IFile } from "./services/PDFGeneratorService";
 
-interface IEnchantedScrollGenerateParams {
-    htmlFilePath?: string;
-    htmlString?: string;
-    fileName?: string;
-}
 
 enum EnchantedScrollOutputType {
     BUFFER = "buffer",
@@ -21,7 +16,7 @@ export default class EnchantedScroll {
     public outputType: EnchantedScrollOutputType = EnchantedScrollOutputType.BUFFER;
 
     constructor (
-        public config: IEnchantedScrollConfig = ESConfig,
+        public config: IAppConfig = ESBaseConfig,
         private logger: Logger = ESLogger,
     ) {
         // If the output directory is set, we should output to a file.
@@ -32,20 +27,21 @@ export default class EnchantedScroll {
         logger.info("ENCHANTED_SCROLL_INIT", config);
     }
 
-    public async generate(params: IEnchantedScrollGenerateParams = {}) {
+    public async generate(params: { htmlFilePath?: string; htmlString?: string; fileName?: string; } = {}) {
         // Initialize the backing services & create a base generate request
         const httpService = new HTTPService({ 
             htmlFilePath: params.htmlFilePath,
-            htmlString: params.htmlString
+            htmlString: params.htmlString,
+            port: this.config.httpPort || ESBaseConfig.httpPort
         });
         const pdfGenerator = new PDFGeneratorService();
         const baseRequest = {
-            url: `http://localhost:${this.config.httpPort}`,
-            options: this.config.pdfOptions
+            url: `http://localhost:${httpService.port}`,
+            options: this.config.pdfOptions || ESBaseConfig.pdfOptions
         };
 
         // Start the HTTP service
-        await httpService.start(this.config.httpPort);
+        await httpService.start();
 
         // Generate the PDF from the HTTP service
         // If Buffer, return the buffer as a Buffer type
@@ -66,21 +62,4 @@ export default class EnchantedScroll {
     
 } 
 
-export { IEnchantedScrollConfig, IFile as IEnchantedScrollFile }
-
-// Test it
-// import EnchantedScroll from "./EnchantedScroll";
-
-const es = new EnchantedScroll({
-    outputDirectory: "./.tmp"
-});
-es.generate({
-    htmlFilePath: "./.tmp/test.html",
-}).then((result) => {
-    console.log(result);
-}
-).catch((err) => {
-    console.error(err);
-}
-);
-
+export { IAppConfig as IEnchantedScrollConfig, IFile as IEnchantedScrollFile }

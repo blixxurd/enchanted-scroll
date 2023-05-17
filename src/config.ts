@@ -9,8 +9,13 @@ interface IAppConfig {
     outputDirectory?: string;
 }
 
-const appConfig: IAppConfig = {
-    httpPort: Number(process.env.HTTP_PORT || "3000"),
+interface IAppBaseConfig {
+    httpPort: number;
+    pdfOptions: PDFOptions;
+}
+
+const baseConfig: IAppBaseConfig = {
+    httpPort: 3000,
     pdfOptions: {
         format: 'A4',
         margin: {
@@ -24,5 +29,5 @@ const appConfig: IAppConfig = {
     },
 };
 
-export default appConfig;
-export { IAppConfig as IEnchantedScrollConfig };
+export default baseConfig;
+export { IAppConfig };

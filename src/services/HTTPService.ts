@@ -6,12 +6,12 @@ import logger from "../lib/Logger";
 interface IHTTPServiceConfig {
     htmlFilePath?: string;
     htmlString?: string;
+    port: number;
 }
-    
 
 export default class HTTPService {
     public app: koa;
-    public port = 0;
+    public port: number;
     public filePath: string|undefined;
     public htmlString: string|undefined;
     
@@ -36,6 +36,8 @@ export default class HTTPService {
             this.htmlString = htmlString;
         }
 
+        this.port = params.port;
+
         this.app = new koa();
     }
 
@@ -43,11 +45,10 @@ export default class HTTPService {
      * Start the HTTP server, to locally serve the HTML file specified in the constructor.
      * @param port The port to listen on.
      */
-    public async start(port: number): Promise<void> {
+    public async start(): Promise<void> {
         // Intentionally not throwing an error if the file doesn't exist.
         // Since this is not a long running service, it's okay to fail at runtime.
         // In fact, for our use case, it's better to fail on runtime than to fail on request.
-        this.port = port;
         let body = this.htmlString;
         if(this.filePath) {
             if(!fs.existsSync(this.filePath)) {
@@ -62,8 +63,8 @@ export default class HTTPService {
             ctx.type = 'html';
         });
           
-        this.app.listen(port, () => {
-            logger.info("HTTP_SERVER_STARTED", { port });
+        this.app.listen(this.port, () => {
+            logger.info("HTTP_SERVER_STARTED", { port: this.port });
             return Promise.resolve();
         });
     }
