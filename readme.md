@@ -1,15 +1,15 @@
-# Enchanted Scroll 🧙‍♂️📜
+# 🧙‍♂️📜 Enchanted Scroll
 
 Enchanted Scroll is a powerful PDF generator that transforms your HTML templates into mesmerizing and enchanting ~scrolls~ PDF files. With Enchanted Scroll, you can effortlessly convert your beautifully designed HTML templates into PDF format, ready to be shared, printed, or displayed in all their magical glory.
 
-## Features
+## ✨ Features
 
 - **HTML to PDF Conversion**: Enchanted Scroll enables you to convert HTML templates into PDF documents.
 - **Buffer or File Output**: You can choose to generate the PDF as a buffer or save it as a file.
 - **Flexible Generation**: Generate PDFs from HTML strings or input HTML files using Puppeteer.
 - **Customizable PDF Options**: Use Puppeteer's PDF options to customize the PDF generation process.
 
-## Usage ✨
+## ✨ Usage
  
 To use Enchanted Scroll in your project, follow these steps:
 
@@ -58,7 +58,7 @@ const pdf = await enchantedScroll.generate({
 
 **Note:** Ensure that Puppeteer is properly installed and configured in your project, as Enchanted Scroll uses Puppeteer for PDF generation. In most cases this should happen just fine in the `npm i` - but mileage may vary across platforms and projects. 
 
-## PDF Configuration 🪄
+## 🪄 PDF Configuration
 
 Enchanted Scroll uses Puppeteer's PDF options for customization. You can pass the desired options when generating the PDF. Here's an example of the default PDF options:
 
@@ -78,6 +78,6 @@ const options = {
 
 Refer to the [Puppeteer documentation](https://pptr.dev/#?product=Puppeteer&version=v13.0.1&show=api-class-pagepdfoptions) for more details on available PDF options.
 
-## Contribution 📜
+## 📜 Contribution
 
 Contributions to Enchanted Scroll are welcome! If you find any issues or have suggestions for improvements, please open an issue on the GitHub repository or submit a pull request.
