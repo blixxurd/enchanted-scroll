@@ -1,6 +1,6 @@
-# Enchanted Scroll
+# 🪄📜 Enchanted Scroll
 
-Enchanted Scroll is a powerful PDF generator that transforms your HTML templates into mesmerizing and enchanting scrolls. With Enchanted Scroll, you can effortlessly convert your beautifully designed HTML templates into PDF format, ready to be shared, printed, or displayed in all their magical glory.
+Enchanted Scroll is a powerful PDF generator that transforms your HTML templates into mesmerizing and enchanting ~scrolls~ PDF files. With Enchanted Scroll, you can effortlessly convert your beautifully designed HTML templates into PDF format, ready to be shared, printed, or displayed in all their magical glory.
 
 ## Features
 
