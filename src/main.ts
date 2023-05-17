@@ -14,17 +14,18 @@ enum EnchantedScrollOutputType {
 
 export default class EnchantedScroll {
     public outputType: EnchantedScrollOutputType = EnchantedScrollOutputType.BUFFER;
+    private logger : Logger;
 
     constructor (
         public config: IAppConfig = ESBaseConfig,
-        private logger: Logger = ESLogger,
     ) {
         // If the output directory is set, we should output to a file.
+        this.logger = ESLogger;
         if(this.config.outputDirectory) {
             this.outputType = EnchantedScrollOutputType.FILE;
         }
 
-        logger.info("ENCHANTED_SCROLL_INIT", config);
+        this.logger.info("ENCHANTED_SCROLL_INIT", config);
     }
 
     public async generate(params: { htmlFilePath?: string; htmlString?: string; fileName?: string; } = {}) {
