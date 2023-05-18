@@ -3,14 +3,15 @@
   "version": "0.2.0",
   "description": "A PDF generation service.",
   "main": "src/main.ts",
+  "repository": "https://github.com/blixxurd/enchanted-scroll",
   "scripts": {
     "lint": "eslint . --fix",
     "build": "tsc",
     "start": "ts-node src/main.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "",
-  "license": "ISC",
+  "author": "Aaron Bartholomew",
+  "license": "GPL-3.0-or-later",
   "devDependencies": {
     "@tsconfig/node18": "^1.0.1",
     "@types/koa": "^2.13.6",
