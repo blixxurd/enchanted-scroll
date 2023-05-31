@@ -42,10 +42,9 @@ export default class HTTPService {
     }
 
     /**
-     * Start the HTTP server, to locally serve the HTML file specified in the constructor.
-     * @param port The port to listen on.
+     * Start the HTTP server, to locally serve the HTML data specified in the constructor.
      */
-    public async start(): Promise<void> {
+    public async start() {
         // Intentionally not throwing an error if the file doesn't exist.
         // Since this is not a long running service, it's okay to fail at runtime.
         // In fact, for our use case, it's better to fail on runtime than to fail on request.
@@ -62,11 +61,8 @@ export default class HTTPService {
             ctx.body = body;
             ctx.type = 'html';
         });
-          
-        this.app.listen(this.port, () => {
-            logger.info("HTTP_SERVER_STARTED", { port: this.port });
-            return Promise.resolve();
-        });
+
+        return this.app.listen(this.port);
     }
 }
 

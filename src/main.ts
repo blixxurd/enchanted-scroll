@@ -12,9 +12,18 @@ enum EnchantedScrollOutputType {
     FILE = "file"
 }
 
+interface IGenerateParams {
+    htmlFilePath?: string; 
+    htmlString?: string; 
+}
+
+interface IFileGenerateParams extends IGenerateParams {
+    fileName?: string; 
+}
+
 export default class EnchantedScroll {
     public outputType: EnchantedScrollOutputType = EnchantedScrollOutputType.BUFFER;
-    private logger : Logger;
+    private logger: Logger;
 
     constructor (
         public config: IAppConfig = ESBaseConfig,
@@ -28,7 +37,7 @@ export default class EnchantedScroll {
         this.logger.info("ENCHANTED_SCROLL_INIT", config);
     }
 
-    public async generate(params: { htmlFilePath?: string; htmlString?: string; fileName?: string; } = {}) {
+    public async init(params: IGenerateParams = {}) {
         // Initialize the backing services & create a base generate request
         const httpService = new HTTPService({ 
             htmlFilePath: params.htmlFilePath,
@@ -42,15 +51,29 @@ export default class EnchantedScroll {
         };
 
         // Start the HTTP service
-        await httpService.start();
+        const server = await httpService.start();
 
-        // Generate the PDF from the HTTP service
-        // If Buffer, return the buffer as a Buffer type
-        if(this.outputType === EnchantedScrollOutputType.BUFFER) {
-            const buffer = await pdfGenerator.generatePDFBuffer(baseRequest);
-            this.logger.info("PDF_GENERATED", { size: buffer.byteLength });
-            return buffer as Buffer;
+        return {
+            server, baseRequest, pdfGenerator
         }
+    }
+
+    public async toPDFBuffer(params: IGenerateParams = {}): Promise<Buffer> {
+        const { server, pdfGenerator, baseRequest } = await this.init(params);
+
+        // Generate with base config 
+        const buffer = await pdfGenerator.generatePDFBuffer(baseRequest);
+        this.logger.info("PDF_GENERATED", { size: buffer.byteLength });
+
+        // Close all connections & close the server 
+        server.closeAllConnections();
+        server.close();
+
+        return buffer;
+    }
+
+    public async toPDFFile(params: IFileGenerateParams = {}): Promise<IFile> {
+        const { server, pdfGenerator, baseRequest } = await this.init(params);
 
         // If File, return the file as an IFile type
         const file = await pdfGenerator.generatePDFFile({
@@ -58,9 +81,27 @@ export default class EnchantedScroll {
             filename: params.fileName || "document",
         });
         this.logger.info("PDF_GENERATED", file);
-        return file as IFile;
+
+        // Close all connections & closer the server 
+        server.closeAllConnections();
+        server.close();
+
+        return file;
+    }
+
+    public async generate(params: { htmlFilePath?: string; htmlString?: string; fileName?: string; } = {}): Promise<Buffer|IFile> {
+        if(this.outputType === EnchantedScrollOutputType.BUFFER) {
+            return await this.toPDFBuffer(params) as Buffer;
+        }
+
+        return await this.toPDFFile(params) as IFile;
     }
     
 } 
 
-export { IAppConfig as IEnchantedScrollConfig, IFile as IEnchantedScrollFile }
+export { 
+    IAppConfig as IEnchantedScrollConfig, 
+    IFile as IEnchantedScrollFile,
+    IGenerateParams,
+    IFileGenerateParams
+}
