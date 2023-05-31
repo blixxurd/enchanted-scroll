@@ -1,6 +1,6 @@
 {
   "name": "enchanted-scroll",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "A PDF generation service.",
   "main": "src/main.ts",
   "repository": "https://github.com/blixxurd/enchanted-scroll",
