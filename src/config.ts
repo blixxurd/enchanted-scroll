@@ -3,10 +3,17 @@ import * as dotenv from "dotenv";
 import { PDFOptions} from 'puppeteer';
 dotenv.config();
 
+enum OutputType {
+    BUFFER = "buffer",
+    BLOB = "blob",
+    FILE = "file"
+}
+
 interface IAppConfig {
     httpPort?: number;
     pdfOptions?: PDFOptions;
     outputDirectory?: string;
+    outputType?: OutputType;
 }
 
 interface IAppBaseConfig {
@@ -27,7 +34,8 @@ const baseConfig: IAppBaseConfig = {
         printBackground: false,
         omitBackground: true,
     },
+    outputType: OutputType.BUFFER
 };
 
 export default baseConfig;
-export { IAppConfig };
+export { IAppConfig, OutputType };

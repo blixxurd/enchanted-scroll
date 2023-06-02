@@ -1,16 +1,10 @@
 // Initialize configuration and local logger
-import ESBaseConfig, { IAppConfig } from "./config";
+import ESBaseConfig, { IAppConfig, OutputType } from "./config";
 import ESLogger, { Logger } from "./lib/Logger";
 
 // Import Required Services
 import HTTPService from "./services/HTTPService";
 import PDFGeneratorService, { IFile } from "./services/PDFGeneratorService";
-
-
-enum EnchantedScrollOutputType {
-    BUFFER = "buffer",
-    FILE = "file"
-}
 
 interface IGenerateParams {
     htmlFilePath?: string; 
@@ -22,7 +16,7 @@ interface IFileGenerateParams extends IGenerateParams {
 }
 
 export default class EnchantedScroll {
-    public outputType: EnchantedScrollOutputType = EnchantedScrollOutputType.BUFFER;
+    public outputType: OutputType;
     private logger: Logger;
 
     constructor (
@@ -30,8 +24,14 @@ export default class EnchantedScroll {
     ) {
         // If the output directory is set, we should output to a file.
         this.logger = ESLogger;
+        this.outputType = config.outputType || OutputType.BUFFER;
+
         if(this.config.outputDirectory) {
-            this.outputType = EnchantedScrollOutputType.FILE;
+            this.outputType = OutputType.FILE;
+        }
+
+        if(this.outputType === OutputType.FILE && !this.config.outputDirectory) {
+            throw new Error("outputDirectory is required when outputType is set to file.");
         }
 
         this.logger.info("ENCHANTED_SCROLL_INIT", config);
@@ -89,9 +89,16 @@ export default class EnchantedScroll {
         return file;
     }
 
-    public async generate(params: { htmlFilePath?: string; htmlString?: string; fileName?: string; } = {}): Promise<Buffer|IFile> {
-        if(this.outputType === EnchantedScrollOutputType.BUFFER) {
+    public async toPDFBlob(params: IGenerateParams = {}): Promise<Blob> {
+        const buffer = await this.toPDFBuffer(params);
+        return new Blob([buffer], { type: 'application/pdf' });
+    }
+
+    public async generate(params: { htmlFilePath?: string; htmlString?: string; fileName?: string; } = {}): Promise<Buffer|IFile|Blob> {
+        if(this.outputType === OutputType.BUFFER) {
             return await this.toPDFBuffer(params) as Buffer;
+        } else if(this.outputType === OutputType.BLOB) {
+            return await this.toPDFBlob(params) as Blob;
         }
 
         return await this.toPDFFile(params) as IFile;
