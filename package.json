@@ -25,5 +25,9 @@
     "dotenv": "^16.0.3",
     "koa": "^2.14.2",
     "puppeteer": "^19.7.2"
-  }
+  },
+  "keywords": [
+    "pdf generator",
+    "html to pdf"
+  ]
 }
