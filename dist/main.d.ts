@@ -1,11 +1,7 @@
 /// <reference types="node" />
 /// <reference types="node" />
-import { IAppConfig } from "./config";
+import { IAppConfig, OutputType } from "./config";
 import PDFGeneratorService, { IFile } from "./services/PDFGeneratorService";
-declare enum EnchantedScrollOutputType {
-    BUFFER = "buffer",
-    FILE = "file"
-}
 interface IGenerateParams {
     htmlFilePath?: string;
     htmlString?: string;
@@ -15,7 +11,7 @@ interface IFileGenerateParams extends IGenerateParams {
 }
 export default class EnchantedScroll {
     config: IAppConfig;
-    outputType: EnchantedScrollOutputType;
+    outputType: OutputType;
     private logger;
     constructor(config?: IAppConfig);
     init(params?: IGenerateParams): Promise<{
@@ -28,10 +24,11 @@ export default class EnchantedScroll {
     }>;
     toPDFBuffer(params?: IGenerateParams): Promise<Buffer>;
     toPDFFile(params?: IFileGenerateParams): Promise<IFile>;
+    toPDFBlob(params?: IGenerateParams): Promise<Blob>;
     generate(params?: {
         htmlFilePath?: string;
         htmlString?: string;
         fileName?: string;
-    }): Promise<Buffer | IFile>;
+    }): Promise<Buffer | IFile | Blob>;
 }
 export { IAppConfig as IEnchantedScrollConfig, IFile as IEnchantedScrollFile, IGenerateParams, IFileGenerateParams };

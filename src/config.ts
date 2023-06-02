@@ -33,8 +33,7 @@ const baseConfig: IAppBaseConfig = {
         },
         printBackground: false,
         omitBackground: true,
-    },
-    outputType: OutputType.BUFFER
+    }
 };
 
 export default baseConfig;

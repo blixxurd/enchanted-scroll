@@ -23,9 +23,17 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.OutputType = void 0;
 // Load dotenv
 const dotenv = __importStar(require("dotenv"));
 dotenv.config();
+var OutputType;
+(function (OutputType) {
+    OutputType["BUFFER"] = "buffer";
+    OutputType["BLOB"] = "blob";
+    OutputType["FILE"] = "file";
+})(OutputType || (OutputType = {}));
+exports.OutputType = OutputType;
 const baseConfig = {
     httpPort: 3000,
     pdfOptions: {
@@ -38,6 +46,6 @@ const baseConfig = {
         },
         printBackground: false,
         omitBackground: true,
-    },
+    }
 };
 exports.default = baseConfig;
