@@ -36,20 +36,19 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 // Initialize configuration and local logger
-const config_1 = __importStar(require("./config"));
 const Logger_1 = __importDefault(require("./lib/Logger"));
+const config_1 = __importStar(require("./config"));
 // Import Required Services
 const HTTPService_1 = __importDefault(require("./services/HTTPService"));
 const PDFGeneratorService_1 = __importDefault(require("./services/PDFGeneratorService"));
 class EnchantedScroll {
     constructor(config = config_1.default) {
         this.config = config;
-        // If the output directory is set, we should output to a file.
+        // Initialize the logger
         this.logger = Logger_1.default;
+        this.logger.enabled = config.logging || config_1.default.logging;
+        // If the output directory is set, we should output to a file.
         this.outputType = config.outputType || config_1.OutputType.BUFFER;
-        if (this.config.outputDirectory) {
-            this.outputType = config_1.OutputType.FILE;
-        }
         if (this.outputType === config_1.OutputType.FILE && !this.config.outputDirectory) {
             throw new Error("outputDirectory is required when outputType is set to file.");
         }
@@ -79,11 +78,12 @@ class EnchantedScroll {
         return __awaiter(this, void 0, void 0, function* () {
             const { server, pdfGenerator, baseRequest } = yield this.init(params);
             // Generate with base config 
-            const buffer = yield pdfGenerator.generatePDFBuffer(baseRequest);
+            const buffer = yield pdfGenerator.generatePDFBuffer(baseRequest).finally(() => {
+                // Close all connections & close the server
+                server.closeAllConnections();
+                server.close();
+            });
             this.logger.info("PDF_GENERATED", { size: buffer.byteLength });
-            // Close all connections & close the server 
-            server.closeAllConnections();
-            server.close();
             return buffer;
         });
     }
@@ -91,11 +91,12 @@ class EnchantedScroll {
         return __awaiter(this, void 0, void 0, function* () {
             const { server, pdfGenerator, baseRequest } = yield this.init(params);
             // If File, return the file as an IFile type
-            const file = yield pdfGenerator.generatePDFFile(Object.assign(Object.assign({}, baseRequest), { filename: params.fileName || "document" }));
+            const file = yield pdfGenerator.generatePDFFile(Object.assign(Object.assign({}, baseRequest), { filename: params.fileName || "document", outputDir: this.config.outputDirectory })).finally(() => {
+                // Close all connections & close the server
+                server.closeAllConnections();
+                server.close();
+            });
             this.logger.info("PDF_GENERATED", file);
-            // Close all connections & closer the server 
-            server.closeAllConnections();
-            server.close();
             return file;
         });
     }

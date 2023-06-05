@@ -16,6 +16,7 @@ enum LogLevel {
 class Logger {
     public static instance: Logger;
     public verbose = true;
+    public enabled = true;
 
     constructor() {
         if(Logger.instance) {
@@ -23,7 +24,7 @@ class Logger {
         }
     }
 
-    public getSingleton(): Logger {
+    static getSingleton(): Logger {
         if(!Logger.instance) {
             Logger.instance = new Logger();
         }
@@ -31,6 +32,11 @@ class Logger {
     }
 
     public log(payload: LogPayload, level: LogLevel = LogLevel.INFO): void {
+        // If silent is true, don't log anything
+        if(!this.enabled) {
+            return;
+        }
+
         const output: LogOutput = {
             message: payload.message,
             data: payload.data,
@@ -57,4 +63,4 @@ class Logger {
 }
 
 export { LogPayload, LogOutput, LogLevel, Logger };
-export default new Logger().getSingleton();
+export default Logger.getSingleton();

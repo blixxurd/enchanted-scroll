@@ -9,10 +9,12 @@ interface IAppConfig {
     pdfOptions?: PDFOptions;
     outputDirectory?: string;
     outputType?: OutputType;
+    logging?: boolean;
 }
 interface IAppBaseConfig {
     httpPort: number;
     pdfOptions: PDFOptions;
+    logging: boolean;
 }
 declare const baseConfig: IAppBaseConfig;
 export default baseConfig;

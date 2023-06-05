@@ -15,8 +15,9 @@ declare enum LogLevel {
 declare class Logger {
     static instance: Logger;
     verbose: boolean;
+    enabled: boolean;
     constructor();
-    getSingleton(): Logger;
+    static getSingleton(): Logger;
     log(payload: LogPayload, level?: LogLevel): void;
     info(message: string, data?: object): void;
     warn(message: string, data?: object): void;

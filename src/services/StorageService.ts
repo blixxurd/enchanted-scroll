@@ -26,9 +26,9 @@ export default class StorageService {
         }
     }
 
-    public getSingleton(): StorageService {
+    static getSingleton(dir = './.tmp'): StorageService {
         if(!StorageService.instance) {
-            StorageService.instance = new StorageService();
+            StorageService.instance = new StorageService(dir);
         }
         return StorageService.instance;
     }

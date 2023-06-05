@@ -8,6 +8,6 @@ export default class StorageService {
     static instance: StorageService;
     private directory;
     constructor(dir?: string);
-    getSingleton(): StorageService;
+    static getSingleton(dir?: string): StorageService;
     write(filename: string, data: Buffer): Promise<IWriteResult>;
 }

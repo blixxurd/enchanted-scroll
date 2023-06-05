@@ -14,11 +14,13 @@ interface IAppConfig {
     pdfOptions?: PDFOptions;
     outputDirectory?: string;
     outputType?: OutputType;
+    logging?: boolean;
 }
 
 interface IAppBaseConfig {
     httpPort: number;
     pdfOptions: PDFOptions;
+    logging: boolean;
 }
 
 const baseConfig: IAppBaseConfig = {
@@ -33,7 +35,8 @@ const baseConfig: IAppBaseConfig = {
         },
         printBackground: false,
         omitBackground: true,
-    }
+    },
+    logging: false
 };
 
 export default baseConfig;

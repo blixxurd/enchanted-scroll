@@ -20,9 +20,8 @@ class PDFGeneratorService {
     /**
      * A service that generates PDFs and saves them to disk.
      */
-    constructor(puppeteer = new Puppeteer_1.default(), storage = new StorageService_1.default().getSingleton()) {
+    constructor(puppeteer = new Puppeteer_1.default()) {
         this.puppeteer = puppeteer;
-        this.storage = storage;
     }
     /**
      * Converts a string to a slug.
@@ -49,11 +48,12 @@ class PDFGeneratorService {
     generatePDFFile(req) {
         return __awaiter(this, void 0, void 0, function* () {
             const { url, filename, options } = req;
+            const storage = StorageService_1.default.getSingleton(req.outputDir);
             Logger_1.default.info("PDF_GENERATOR_START", { url, filename });
             // Generate the file identity
             const fileIdentity = this.generateFileIdentity(filename);
             const pdf = yield this.puppeteer.generatePDF(url, options);
-            const result = yield this.storage.write(fileIdentity.filename, pdf);
+            const result = yield storage.write(fileIdentity.filename, pdf);
             return Object.assign(Object.assign({}, fileIdentity), { size: result.filesize, created_at: new Date() });
         });
     }

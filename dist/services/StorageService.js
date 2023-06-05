@@ -27,9 +27,9 @@ class StorageService {
             throw new Error(`Directory ${this.directory} does not exist.`);
         }
     }
-    getSingleton() {
+    static getSingleton(dir = './.tmp') {
         if (!StorageService.instance) {
-            StorageService.instance = new StorageService();
+            StorageService.instance = new StorageService(dir);
         }
         return StorageService.instance;
     }

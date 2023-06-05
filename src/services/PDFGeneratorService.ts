@@ -23,6 +23,7 @@ interface IGeneratePDFBufferRequest {
 
 interface IGeneratePDFFileRequest extends IGeneratePDFBufferRequest {
     filename: string;
+    outputDir?: string;
 }
 
 export default class PDFGeneratorService {
@@ -31,7 +32,6 @@ export default class PDFGeneratorService {
      */
     constructor(
         private puppeteer: Puppeteer = new Puppeteer(),
-        private storage: StorageService = new StorageService().getSingleton()
     ) {}
 
     /**
@@ -60,6 +60,7 @@ export default class PDFGeneratorService {
      */
     public async generatePDFFile(req: IGeneratePDFFileRequest): Promise<IFile> {
         const { url, filename, options } = req;
+        const storage = StorageService.getSingleton(req.outputDir);
 
         logger.info("PDF_GENERATOR_START", { url, filename });
 
@@ -67,7 +68,7 @@ export default class PDFGeneratorService {
         const fileIdentity = this.generateFileIdentity(filename);
 
         const pdf = await this.puppeteer.generatePDF(url, options);
-        const result = await this.storage.write(fileIdentity.filename, pdf);
+        const result = await storage.write(fileIdentity.filename, pdf);
         
         return {
             ...fileIdentity,

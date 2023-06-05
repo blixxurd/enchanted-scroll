@@ -46,6 +46,7 @@ const baseConfig = {
         },
         printBackground: false,
         omitBackground: true,
-    }
+    },
+    logging: false
 };
 exports.default = baseConfig;

@@ -10,17 +10,22 @@ exports.LogLevel = LogLevel;
 class Logger {
     constructor() {
         this.verbose = true;
+        this.enabled = true;
         if (Logger.instance) {
             throw new Error("Logger is a singleton. Use Logger.getInstance() instead.");
         }
     }
-    getSingleton() {
+    static getSingleton() {
         if (!Logger.instance) {
             Logger.instance = new Logger();
         }
         return Logger.instance;
     }
     log(payload, level = LogLevel.INFO) {
+        // If silent is true, don't log anything
+        if (!this.enabled) {
+            return;
+        }
         const output = {
             message: payload.message,
             data: payload.data,
@@ -42,4 +47,4 @@ class Logger {
     }
 }
 exports.Logger = Logger;
-exports.default = new Logger().getSingleton();
+exports.default = Logger.getSingleton();

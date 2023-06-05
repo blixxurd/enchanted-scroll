@@ -1,6 +1,5 @@
 /// <reference types="node" />
 import Puppeteer from "../lib/Puppeteer";
-import StorageService from "../services/StorageService";
 import { PDFOptions } from 'puppeteer';
 interface IFileIdentity {
     id: string;
@@ -18,14 +17,14 @@ interface IGeneratePDFBufferRequest {
 }
 interface IGeneratePDFFileRequest extends IGeneratePDFBufferRequest {
     filename: string;
+    outputDir?: string;
 }
 export default class PDFGeneratorService {
     private puppeteer;
-    private storage;
     /**
      * A service that generates PDFs and saves them to disk.
      */
-    constructor(puppeteer?: Puppeteer, storage?: StorageService);
+    constructor(puppeteer?: Puppeteer);
     /**
      * Converts a string to a slug.
      */

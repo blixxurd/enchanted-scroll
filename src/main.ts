@@ -1,6 +1,6 @@
 // Initialize configuration and local logger
-import ESBaseConfig, { IAppConfig, OutputType } from "./config";
 import ESLogger, { Logger } from "./lib/Logger";
+import ESBaseConfig, { IAppConfig, OutputType } from "./config";
 
 // Import Required Services
 import HTTPService from "./services/HTTPService";
@@ -22,13 +22,12 @@ export default class EnchantedScroll {
     constructor (
         public config: IAppConfig = ESBaseConfig,
     ) {
-        // If the output directory is set, we should output to a file.
+        // Initialize the logger
         this.logger = ESLogger;
-        this.outputType = config.outputType || OutputType.BUFFER;
+        this.logger.enabled = config.logging || ESBaseConfig.logging;
 
-        if(this.config.outputDirectory) {
-            this.outputType = OutputType.FILE;
-        }
+        // If the output directory is set, we should output to a file.
+        this.outputType = config.outputType || OutputType.BUFFER;
 
         if(this.outputType === OutputType.FILE && !this.config.outputDirectory) {
             throw new Error("outputDirectory is required when outputType is set to file.");
@@ -62,12 +61,12 @@ export default class EnchantedScroll {
         const { server, pdfGenerator, baseRequest } = await this.init(params);
 
         // Generate with base config 
-        const buffer = await pdfGenerator.generatePDFBuffer(baseRequest);
+        const buffer = await pdfGenerator.generatePDFBuffer(baseRequest).finally(() => {
+            // Close all connections & close the server
+            server.closeAllConnections();
+            server.close();
+        });
         this.logger.info("PDF_GENERATED", { size: buffer.byteLength });
-
-        // Close all connections & close the server 
-        server.closeAllConnections();
-        server.close();
 
         return buffer;
     }
@@ -79,12 +78,14 @@ export default class EnchantedScroll {
         const file = await pdfGenerator.generatePDFFile({
             ...baseRequest,
             filename: params.fileName || "document",
+            outputDir: this.config.outputDirectory
+        }).finally(() => {
+            // Close all connections & close the server
+            server.closeAllConnections();
+            server.close();
         });
+        
         this.logger.info("PDF_GENERATED", file);
-
-        // Close all connections & closer the server 
-        server.closeAllConnections();
-        server.close();
 
         return file;
     }
