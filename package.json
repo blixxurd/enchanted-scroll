@@ -2,8 +2,8 @@
   "name": "enchanted-scroll",
   "version": "0.4.1",
   "description": "A PDF generation service.",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "main": "dist/main.js",
+  "types": "dist/main.d.ts",
   "repository": "https://github.com/blixxurd/enchanted-scroll",
   "scripts": {
     "lint": "eslint . --fix",
