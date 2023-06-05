@@ -8,9 +8,8 @@ var LogLevel;
 })(LogLevel || (LogLevel = {}));
 exports.LogLevel = LogLevel;
 class Logger {
-    static instance;
-    verbose = true;
     constructor() {
+        this.verbose = true;
         if (Logger.instance) {
             throw new Error("Logger is a singleton. Use Logger.getInstance() instead.");
         }

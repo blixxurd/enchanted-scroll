@@ -22,6 +22,15 @@ var __importStar = (this && this.__importStar) || function (mod) {
     __setModuleDefault(result, mod);
     return result;
 };
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
@@ -33,9 +42,6 @@ const Logger_1 = __importDefault(require("./lib/Logger"));
 const HTTPService_1 = __importDefault(require("./services/HTTPService"));
 const PDFGeneratorService_1 = __importDefault(require("./services/PDFGeneratorService"));
 class EnchantedScroll {
-    config;
-    outputType;
-    logger;
     constructor(config = config_1.default) {
         this.config = config;
         // If the output directory is set, we should output to a file.
@@ -49,59 +55,66 @@ class EnchantedScroll {
         }
         this.logger.info("ENCHANTED_SCROLL_INIT", config);
     }
-    async init(params = {}) {
-        // Initialize the backing services & create a base generate request
-        const httpService = new HTTPService_1.default({
-            htmlFilePath: params.htmlFilePath,
-            htmlString: params.htmlString,
-            port: this.config.httpPort || config_1.default.httpPort
+    init(params = {}) {
+        return __awaiter(this, void 0, void 0, function* () {
+            // Initialize the backing services & create a base generate request
+            const httpService = new HTTPService_1.default({
+                htmlFilePath: params.htmlFilePath,
+                htmlString: params.htmlString,
+                port: this.config.httpPort || config_1.default.httpPort
+            });
+            const pdfGenerator = new PDFGeneratorService_1.default();
+            const baseRequest = {
+                url: `http://localhost:${httpService.port}`,
+                options: this.config.pdfOptions || config_1.default.pdfOptions
+            };
+            // Start the HTTP service
+            const server = yield httpService.start();
+            return {
+                server, baseRequest, pdfGenerator
+            };
         });
-        const pdfGenerator = new PDFGeneratorService_1.default();
-        const baseRequest = {
-            url: `http://localhost:${httpService.port}`,
-            options: this.config.pdfOptions || config_1.default.pdfOptions
-        };
-        // Start the HTTP service
-        const server = await httpService.start();
-        return {
-            server, baseRequest, pdfGenerator
-        };
     }
-    async toPDFBuffer(params = {}) {
-        const { server, pdfGenerator, baseRequest } = await this.init(params);
-        // Generate with base config 
-        const buffer = await pdfGenerator.generatePDFBuffer(baseRequest);
-        this.logger.info("PDF_GENERATED", { size: buffer.byteLength });
-        // Close all connections & close the server 
-        server.closeAllConnections();
-        server.close();
-        return buffer;
-    }
-    async toPDFFile(params = {}) {
-        const { server, pdfGenerator, baseRequest } = await this.init(params);
-        // If File, return the file as an IFile type
-        const file = await pdfGenerator.generatePDFFile({
-            ...baseRequest,
-            filename: params.fileName || "document",
+    toPDFBuffer(params = {}) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const { server, pdfGenerator, baseRequest } = yield this.init(params);
+            // Generate with base config 
+            const buffer = yield pdfGenerator.generatePDFBuffer(baseRequest);
+            this.logger.info("PDF_GENERATED", { size: buffer.byteLength });
+            // Close all connections & close the server 
+            server.closeAllConnections();
+            server.close();
+            return buffer;
         });
-        this.logger.info("PDF_GENERATED", file);
-        // Close all connections & closer the server 
-        server.closeAllConnections();
-        server.close();
-        return file;
     }
-    async toPDFBlob(params = {}) {
-        const buffer = await this.toPDFBuffer(params);
-        return new Blob([buffer], { type: 'application/pdf' });
+    toPDFFile(params = {}) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const { server, pdfGenerator, baseRequest } = yield this.init(params);
+            // If File, return the file as an IFile type
+            const file = yield pdfGenerator.generatePDFFile(Object.assign(Object.assign({}, baseRequest), { filename: params.fileName || "document" }));
+            this.logger.info("PDF_GENERATED", file);
+            // Close all connections & closer the server 
+            server.closeAllConnections();
+            server.close();
+            return file;
+        });
     }
-    async generate(params = {}) {
-        if (this.outputType === config_1.OutputType.BUFFER) {
-            return await this.toPDFBuffer(params);
-        }
-        else if (this.outputType === config_1.OutputType.BLOB) {
-            return await this.toPDFBlob(params);
-        }
-        return await this.toPDFFile(params);
+    toPDFBlob(params = {}) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const buffer = yield this.toPDFBuffer(params);
+            return new Blob([buffer], { type: 'application/pdf' });
+        });
+    }
+    generate(params = {}) {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (this.outputType === config_1.OutputType.BUFFER) {
+                return yield this.toPDFBuffer(params);
+            }
+            else if (this.outputType === config_1.OutputType.BLOB) {
+                return yield this.toPDFBlob(params);
+            }
+            return yield this.toPDFFile(params);
+        });
     }
 }
 exports.default = EnchantedScroll;
