@@ -1,6 +1,6 @@
 {
   "name": "enchanted-scroll",
-  "version": "0.5.0",
+  "version": "0.5.1",
   "description": "A PDF generation service.",
   "main": "dist/main.js",
   "types": "dist/main.d.ts",
