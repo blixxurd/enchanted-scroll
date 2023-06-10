@@ -12,6 +12,7 @@ describe('EnchantedScroll Base Tests', () => {
     test('pdfGenerator is an instance of EnchantedScroll', () => {
         expect(pdfGenerator).toBeInstanceOf(EnchantedScroll);
     });
+
 });
 
 // Tests that test the generating of a PDF from a HTML string

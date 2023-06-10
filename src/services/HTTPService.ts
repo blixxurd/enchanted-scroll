@@ -2,6 +2,7 @@ import koa, { Context } from 'koa';
 import path from 'path';
 import fs from 'fs';
 import logger from "../lib/Logger";
+import { Server } from 'http';
 
 interface IHTTPServiceConfig {
     htmlFilePath?: string;
@@ -14,7 +15,7 @@ export default class HTTPService {
     public port: number;
     public filePath: string|undefined;
     public htmlString: string|undefined;
-    
+    public server: Server | undefined;
     /**
      * A small HTTP server that serves a single HTML file.
      * @param htmlFilePath The path to the HTML file to serve.
@@ -62,8 +63,32 @@ export default class HTTPService {
             ctx.type = 'html';
         });
 
-        return this.app.listen(this.port);
+        this.server = this.app.listen(this.port);
+
+        return this.server;
     }
+
+    /**
+     * Stop the HTTP server.
+     */
+    public stop() {
+        return new Promise((resolve, reject) => {
+            if(this.server) {
+                this.server.closeAllConnections();
+                this.server.close((err) => {
+                    if(err) {
+                        return reject(err);
+                    }
+                    logger.info("HTTP_SERVICE_STOPPED", { port: this.port });
+                    return resolve({
+                        port: this.port,
+                        server: this.server
+                    });
+                });
+            } 
+        });
+    }
+
 }
 
 export { IHTTPServiceConfig };

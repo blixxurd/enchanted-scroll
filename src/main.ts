@@ -18,6 +18,7 @@ interface IFileGenerateParams extends IGenerateParams {
 export default class EnchantedScroll {
     public outputType: OutputType;
     private logger: Logger;
+    public httpService?: HTTPService
 
     constructor (
         public config: IAppConfig = ESBaseConfig,
@@ -37,20 +38,24 @@ export default class EnchantedScroll {
     }
 
     public async init(params: IGenerateParams = {}) {
+        // If there is already an HTTP service, make sure it's stopped
+        if(this.httpService) {
+            await this.httpService.stop();
+        }
         // Initialize the backing services & create a base generate request
-        const httpService = new HTTPService({ 
+        this.httpService = new HTTPService({ 
             htmlFilePath: params.htmlFilePath,
             htmlString: params.htmlString,
             port: this.config.httpPort || ESBaseConfig.httpPort
         });
         const pdfGenerator = new PDFGeneratorService();
         const baseRequest = {
-            url: `http://localhost:${httpService.port}`,
+            url: `http://localhost:${this.httpService.port}`,
             options: this.config.pdfOptions || ESBaseConfig.pdfOptions
         };
 
         // Start the HTTP service
-        const server = await httpService.start();
+        const server = await this.httpService.start();
 
         return {
             server, baseRequest, pdfGenerator
@@ -58,32 +63,24 @@ export default class EnchantedScroll {
     }
 
     public async toPDFBuffer(params: IGenerateParams = {}): Promise<Buffer> {
-        const { server, pdfGenerator, baseRequest } = await this.init(params);
+        const { pdfGenerator, baseRequest } = await this.init(params);
 
         // Generate with base config 
-        const buffer = await pdfGenerator.generatePDFBuffer(baseRequest).finally(() => {
-            // Close all connections & close the server
-            server.closeAllConnections();
-            server.close();
-        });
+        const buffer = await pdfGenerator.generatePDFBuffer(baseRequest).finally(this.httpService?.stop);
         this.logger.info("PDF_GENERATED", { size: buffer.byteLength });
 
         return buffer;
     }
 
     public async toPDFFile(params: IFileGenerateParams = {}): Promise<IFile> {
-        const { server, pdfGenerator, baseRequest } = await this.init(params);
+        const { pdfGenerator, baseRequest } = await this.init(params);
 
         // If File, return the file as an IFile type
         const file = await pdfGenerator.generatePDFFile({
             ...baseRequest,
             filename: params.fileName || "document",
             outputDir: this.config.outputDirectory
-        }).finally(() => {
-            // Close all connections & close the server
-            server.closeAllConnections();
-            server.close();
-        });
+        }).finally(this.httpService?.stop);
         
         this.logger.info("PDF_GENERATED", file);
 
