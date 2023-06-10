@@ -22,6 +22,7 @@ class HTTPService {
      * @param htmlFilePath The path to the HTML file to serve.
      */
     constructor(params) {
+        this.server = undefined;
         const { htmlFilePath, htmlString } = params;
         Logger_1.default.info("HTTP_SERVICE_INIT", { htmlFilePath, htmlString });
         if (!htmlFilePath && !htmlString) {
@@ -59,7 +60,32 @@ class HTTPService {
                 ctx.body = body;
                 ctx.type = 'html';
             }));
-            return this.app.listen(this.port);
+            this.server = this.app.listen(this.port);
+            return this.server;
+        });
+    }
+    /**
+     * Stop the HTTP server.
+     */
+    stop() {
+        return new Promise((resolve, reject) => {
+            if (this.server && this.server.listening) {
+                this.server.closeAllConnections();
+                this.server.close((err) => {
+                    if (err) {
+                        return reject(err);
+                    }
+                    Logger_1.default.info("HTTP_SERVICE_STOPPED", { port: this.port });
+                    return resolve({
+                        port: this.port,
+                        server: this.server
+                    });
+                });
+            }
+            return resolve({
+                port: this.port,
+                server: this.server
+            });
         });
     }
 }

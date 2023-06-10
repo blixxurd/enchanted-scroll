@@ -77,5 +77,34 @@ describe('Tests from HTML File Input', () => {
         expect(pdf).toBeInstanceOf(Blob);
     });
 
+});
+
+describe('Tests from Remote URL Input', () => {
+
+    const url = 'https://www.gnu.org/licenses/gpl-3.0-standalone.html';
+
+    test('Remote URL can be converted to a PDF file', async () => {
+        pdfGenerator.outputType = 'file';
+        const fileName = 'test-remote-url';
+        const pdf = await pdfGenerator.generate({ url, fileName });
+        // Checking the 'IFile' type
+        expect(pdf).toBeInstanceOf(Object);
+        expect(pdf).toHaveProperty('filename');
+        expect(pdf.filename_original).toBe(fileName);
+    });
+
+    // 2. Test that the HTML string is converted to a PDF buffer by checking that the output is a Buffer type
+    test('Remote URL can be converted to a PDF Buffer', async () => {
+        pdfGenerator.outputType = 'buffer';
+        const pdf = await pdfGenerator.generate({ url });
+        expect(pdf).toBeInstanceOf(Buffer);
+    });
+
+    // 3. Test that the HTML string is converted to a PDF Blob by checking that the output is a Blob type
+    test('Remote URL can be converted to a PDF Blob', async () => {
+        pdfGenerator.outputType = 'blob';
+        const pdf = await pdfGenerator.generate({ url });
+        expect(pdf).toBeInstanceOf(Blob);
+    });
 
 });

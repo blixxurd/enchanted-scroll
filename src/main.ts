@@ -7,6 +7,7 @@ import HTTPService from "./services/HTTPService";
 import PDFGeneratorService, { IFile } from "./services/PDFGeneratorService";
 
 interface IGenerateParams {
+    url?: string;
     htmlFilePath?: string; 
     htmlString?: string; 
 }
@@ -37,28 +38,33 @@ export default class EnchantedScroll {
         this.logger.info("ENCHANTED_SCROLL_INIT", config);
     }
 
-    public async init(params: IGenerateParams = {}) {
-        // If there is already an HTTP service, make sure it's stopped
+    private async cleanup() {
         if(this.httpService) {
             await this.httpService.stop();
         }
-        // Initialize the backing services & create a base generate request
-        this.httpService = new HTTPService({ 
-            htmlFilePath: params.htmlFilePath,
-            htmlString: params.htmlString,
-            port: this.config.httpPort || ESBaseConfig.httpPort
-        });
+        return;
+    }
+
+    public async init(params: IGenerateParams = {}) {
+        // If no remote URL provided, start a local HTTP server to serve the HTML
+        if(!params.url) {
+            this.httpService = new HTTPService({ 
+                htmlFilePath: params.htmlFilePath,
+                htmlString: params.htmlString,
+                port: this.config.httpPort || ESBaseConfig.httpPort
+            });
+
+            await this.httpService.start();
+        }
+
         const pdfGenerator = new PDFGeneratorService();
         const baseRequest = {
-            url: `http://localhost:${this.httpService.port}`,
+            url: params.url || `http://localhost:${this.httpService?.port}`,
             options: this.config.pdfOptions || ESBaseConfig.pdfOptions
         };
 
-        // Start the HTTP service
-        const server = await this.httpService.start();
-
         return {
-            server, baseRequest, pdfGenerator
+            baseRequest, pdfGenerator
         }
     }
 
@@ -66,7 +72,7 @@ export default class EnchantedScroll {
         const { pdfGenerator, baseRequest } = await this.init(params);
 
         // Generate with base config 
-        const buffer = await pdfGenerator.generatePDFBuffer(baseRequest).finally(this.httpService?.stop);
+        const buffer = await pdfGenerator.generatePDFBuffer(baseRequest).finally(() => this.cleanup());
         this.logger.info("PDF_GENERATED", { size: buffer.byteLength });
 
         return buffer;
@@ -80,7 +86,7 @@ export default class EnchantedScroll {
             ...baseRequest,
             filename: params.fileName || "document",
             outputDir: this.config.outputDirectory
-        }).finally(this.httpService?.stop);
+        }).finally(() => this.cleanup());
         
         this.logger.info("PDF_GENERATED", file);
 
@@ -92,7 +98,7 @@ export default class EnchantedScroll {
         return new Blob([buffer], { type: 'application/pdf' });
     }
 
-    public async generate(params: { htmlFilePath?: string; htmlString?: string; fileName?: string; } = {}): Promise<Buffer|IFile|Blob> {
+    public async generate(params: IFileGenerateParams|IGenerateParams = {}): Promise<Buffer|IFile|Blob> {
         if(this.outputType === OutputType.BUFFER) {
             return await this.toPDFBuffer(params) as Buffer;
         } else if(this.outputType === OutputType.BLOB) {

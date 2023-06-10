@@ -54,48 +54,50 @@ class EnchantedScroll {
         }
         this.logger.info("ENCHANTED_SCROLL_INIT", config);
     }
-    init(params = {}) {
+    cleanup() {
         return __awaiter(this, void 0, void 0, function* () {
-            // Initialize the backing services & create a base generate request
-            const httpService = new HTTPService_1.default({
-                htmlFilePath: params.htmlFilePath,
-                htmlString: params.htmlString,
-                port: this.config.httpPort || config_1.default.httpPort
-            });
+            if (this.httpService) {
+                yield this.httpService.stop();
+            }
+            return;
+        });
+    }
+    init(params = {}) {
+        var _a;
+        return __awaiter(this, void 0, void 0, function* () {
+            // If no remote URL provided, start a local HTTP server to serve the HTML
+            if (!params.url) {
+                this.httpService = new HTTPService_1.default({
+                    htmlFilePath: params.htmlFilePath,
+                    htmlString: params.htmlString,
+                    port: this.config.httpPort || config_1.default.httpPort
+                });
+                yield this.httpService.start();
+            }
             const pdfGenerator = new PDFGeneratorService_1.default();
             const baseRequest = {
-                url: `http://localhost:${httpService.port}`,
+                url: params.url || `http://localhost:${(_a = this.httpService) === null || _a === void 0 ? void 0 : _a.port}`,
                 options: this.config.pdfOptions || config_1.default.pdfOptions
             };
-            // Start the HTTP service
-            const server = yield httpService.start();
             return {
-                server, baseRequest, pdfGenerator
+                baseRequest, pdfGenerator
             };
         });
     }
     toPDFBuffer(params = {}) {
         return __awaiter(this, void 0, void 0, function* () {
-            const { server, pdfGenerator, baseRequest } = yield this.init(params);
+            const { pdfGenerator, baseRequest } = yield this.init(params);
             // Generate with base config 
-            const buffer = yield pdfGenerator.generatePDFBuffer(baseRequest).finally(() => {
-                // Close all connections & close the server
-                server.closeAllConnections();
-                server.close();
-            });
+            const buffer = yield pdfGenerator.generatePDFBuffer(baseRequest).finally(() => this.cleanup());
             this.logger.info("PDF_GENERATED", { size: buffer.byteLength });
             return buffer;
         });
     }
     toPDFFile(params = {}) {
         return __awaiter(this, void 0, void 0, function* () {
-            const { server, pdfGenerator, baseRequest } = yield this.init(params);
+            const { pdfGenerator, baseRequest } = yield this.init(params);
             // If File, return the file as an IFile type
-            const file = yield pdfGenerator.generatePDFFile(Object.assign(Object.assign({}, baseRequest), { filename: params.fileName || "document", outputDir: this.config.outputDirectory })).finally(() => {
-                // Close all connections & close the server
-                server.closeAllConnections();
-                server.close();
-            });
+            const file = yield pdfGenerator.generatePDFFile(Object.assign(Object.assign({}, baseRequest), { filename: params.fileName || "document", outputDir: this.config.outputDirectory })).finally(() => this.cleanup());
             this.logger.info("PDF_GENERATED", file);
             return file;
         });

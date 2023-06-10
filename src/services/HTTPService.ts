@@ -15,7 +15,7 @@ export default class HTTPService {
     public port: number;
     public filePath: string|undefined;
     public htmlString: string|undefined;
-    public server: Server | undefined;
+    public server: Server | undefined = undefined;
     /**
      * A small HTTP server that serves a single HTML file.
      * @param htmlFilePath The path to the HTML file to serve.
@@ -38,7 +38,6 @@ export default class HTTPService {
         }
 
         this.port = params.port;
-
         this.app = new koa();
     }
 
@@ -73,7 +72,7 @@ export default class HTTPService {
      */
     public stop() {
         return new Promise((resolve, reject) => {
-            if(this.server) {
+            if(this.server && this.server.listening) {
                 this.server.closeAllConnections();
                 this.server.close((err) => {
                     if(err) {
@@ -85,7 +84,11 @@ export default class HTTPService {
                         server: this.server
                     });
                 });
-            } 
+            }
+            return resolve({
+                port: this.port,
+                server: this.server
+            });
         });
     }
 
