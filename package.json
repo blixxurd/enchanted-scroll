@@ -8,9 +8,9 @@
   "scripts": {
     "lint": "eslint . --fix",
     "build": "tsc",
-    "test": "jest"
+    "test": "jest",
+    "postinstall": "echo '\u001b[32mThank you for installing Enchanted Scroll! Support from the developer community is appreciated as we are in active development. \u001b[36mhttps://twitter.com/WhySoAaron \u001b[0m'"
   },
-  "postinstall": "echo '\u001b[32mThank you for installing Enchanted Scroll! Support from the developer community is appreciated as we are in active development. \u001b[36mhttps://twitter.com/WhySoAaron \u001b[0m'",
   "author": "Aaron Bartholomew <https://twitter.com/WhySoAaron>",
   "license": "GPL-3.0-or-later",
   "devDependencies": {
