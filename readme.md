@@ -6,79 +6,56 @@ Enchanted Scroll is a powerful PDF generator that transforms your HTML templates
 
 ## ✨ Features
 
-- **HTML to PDF Conversion**: Enchanted Scroll enables you to convert HTML templates into PDF documents.
-- **Buffer or File Output**: You can choose to generate the PDF as a buffer or save it as a file.
-- **Flexible Generation**: Generate PDFs from HTML strings or input HTML files using Puppeteer.
-- **Customizable PDF Options**: Use Puppeteer's PDF options to customize the PDF generation process.
+Enchanted Scroll offers a range of powerful features to help you convert HTML content into professional PDF documents:
+
+- **HTML to PDF Conversion**: Easily convert local HTML files or HTML strings into PDF documents.
+- **URL to PDF Conversion**: Transform any webpage or remote HTML document into a high-quality PDF document.
+- **Flexible Output Options**: Choose your preferred output format for the generated PDF - whether it's a buffer, a blob, or a saved file.
+- **Customizable PDF Settings**: Fine-tune the details of your PDF files using Puppeteer's versatile options to meet your specific requirements.
+- **Express Your Style**: Design your documents exactly as you envision using HTML and CSS, and Enchanted Scroll will faithfully convert them into stunning PDFs.
+
+Experience the magic of Enchanted Scroll as it effortlessly brings your HTML content to life in the form of beautiful, professional PDF documents.
 
 ## ✨ Usage
  
 To use Enchanted Scroll in your project, follow these steps:
 
-### 1. Import the module and the required services into your JavaScript file:
+### Installing Enchanted Scroll:
+Install enchanted scroll from NPM.
+
+`npm i enchanted-scroll`
+
+### Basic Use Case:
+The following example generates a PDF Buffer from an HTML string. 
 
 ```javascript
 import EnchantedScroll from 'enchanted-scroll';
-```
 
-### 2. Create a new instance of Enchanted Scroll:
-
-```javascript
-const enchantedScroll = new EnchantedScroll({
-    // Optional, a port to run the listener service on
-    httpPort: 3000,
-    // Optional PDF formatting options
-    pdfOptions: {
-        format: 'A4',
-        margin: {
-            top: '1cm',
-            bottom: '1cm',
-            left: '1cm',
-            right: '1cm'
-        },
-        printBackground: false,
-        omitBackground: true,
-    },
-    // Optional output folder. When not explicitly set, generator returns a buffer
-    outputDirectory: '/path/to/output/folder'
+const enchantedScroll = new EnchantedScroll();
+const pdf = await enchantedScroll.generate({ 
+  htmlString: '<h1>Hello World</h1>'
 });
 ```
 
-### 3. Generate the PDF:
+### PDF File Configuration
 
-```javascript
-// PDF from From a string
-const pdf = await enchantedScroll.generate({ htmlString });
+Enchanted Scroll uses Puppeteer's PDF options for file layout customization. You can pass your desired options when generating the PDF. Refer to the [Puppeteer documentation](https://pptr.dev/#?product=Puppeteer&version=v13.0.1&show=api-class-pagepdfoptions) for more details on available PDF options.
 
-// PDF From a file
-const pdf = await enchantedScroll.generate({
-    htmlFilePath: '/path/to/html/file',
-    // Optional filename parameter adds a namespace to the generated filename
-    filename: 'some-optional-namespace'
-});
-```
+Here's an example of Enchanted Scroll's default PDF options:
 
-**Note:** Ensure that Puppeteer is properly installed and configured in your project, as Enchanted Scroll uses Puppeteer for PDF generation. In most cases this should happen just fine in the `npm i` - but mileage may vary across platforms and projects. 
-
-## 🪄 PDF Configuration
-
-Enchanted Scroll uses Puppeteer's PDF options for customization. You can pass the desired options when generating the PDF. Here's an example of the default PDF options:
-
-```javascript
-const options = {
-  format: 'A4',
-  margin: {
-    top: '1cm',
-    bottom: '1cm',
-    left: '1cm',
-    right: '1cm'
+```json
+{
+  "format": "A4",
+  "margin": {
+    "top": "1cm",
+    "bottom": "1cm",
+    "left": "1cm",
+    "right": "1cm"
   },
-  printBackground: true,
-  displayHeaderFooter: true,
-};
+  "printBackground": true,
+  "displayHeaderFooter": true
+}
 ```
-
-Refer to the [Puppeteer documentation](https://pptr.dev/#?product=Puppeteer&version=v13.0.1&show=api-class-pagepdfoptions) for more details on available PDF options.
 
 ## 📜 Contribution
 

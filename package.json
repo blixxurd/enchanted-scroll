@@ -10,7 +10,8 @@
     "build": "tsc",
     "test": "jest"
   },
-  "author": "Aaron Bartholomew",
+  "postinstall": "echo '\u001b[32mThank you for installing Enchanted Scroll! Support from the developer community is appreciated as we are in active development. \u001b[36mhttps://twitter.com/WhySoAaron \u001b[0m'",
+  "author": "Aaron Bartholomew <https://twitter.com/WhySoAaron>",
   "license": "GPL-3.0-or-later",
   "devDependencies": {
     "@tsconfig/node18": "^1.0.1",
@@ -29,6 +30,11 @@
   },
   "keywords": [
     "pdf generator",
-    "html to pdf"
+    "html to pdf",
+    "pdf",
+    "url to pdf",
+    "pdf service",
+    "pdf api",
+    "pdf generation"
   ]
 }
